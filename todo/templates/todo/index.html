@@ -158,6 +158,7 @@
                     done.addEventListener('click', (function (item) {
                         return function () {
                             strikeUnstrike(item)
+                            
                         }
                     })(list[i]))
 
@@ -223,7 +224,7 @@
     }
 
     function strikeUnstrike(item) {
-        // console.log('Strike clicked')
+        console.log('Strike clicked')
 
         item.completed = !item.completed
         fetch(`http://127.0.0.1:8000/todo/api/task-update/${item.id}/`, {
@@ -232,7 +233,8 @@
                 'Content-type': 'application/json',
                 'X-CSRFToken': csrftoken,
             },
-            body: JSON.stringify({ 'title': item.title, 'completed': item.completed })
+            body: JSON.stringify({ 'title': item.title, 'completed': true })
+
         }).then((response) => {
             buildList()
         })

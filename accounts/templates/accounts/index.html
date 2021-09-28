@@ -146,6 +146,7 @@
         let url = 'http://127.0.0.1:8000/accounts/api/login/'
         let login_username = document.getElementById('login-username').value
         let login_password = document.getElementById('login-password').value
+        console.log(login_username + ' ' + login_password)
         var Http = new XMLHttpRequest();
         Http.open("POST", url);
         Http.setRequestHeader("Accept", "application/json");
@@ -165,7 +166,7 @@
                 }
             }
         }
-        data = JSON.stringify({ 'username': login_username, 'password1': login_password })
+        data = JSON.stringify({ 'username': login_username, 'password': login_password })
         Http.send(data);
     });
 

@@ -1,26 +1,19 @@
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-
-from rest_framework.decorators import api_view
-
-# permission_classes,
-
+from rest_framework.decorators import api_view,permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
-# from rest_framework.permissions import IsAuthenticated
-from .serializers import TaskSerializer
-
 from rest_framework import status
 
-from todo.models import Task
+from .serializers import TaskSerializer
 
-# Create your views here.
+from todo.models import Task
+from django.contrib.auth.models import User
 
 
 @api_view(["GET"])
 def apiOverview(request):
-    """Overview of the whole api urls
-    """
+    """Overview of the whole api urls"""
     api_urls = {
         "Login": "/accounts/api/login",
         "Register": "/accounts/api/register",
@@ -34,7 +27,7 @@ def apiOverview(request):
     return Response(api_urls)
 
 
-# @permission_classes((IsAuthenticated, ))
+@permission_classes((IsAuthenticated, ))
 @api_view(["GET", "POST"])
 def taskList(request):
     """
@@ -45,13 +38,13 @@ def taskList(request):
 
     """
     if request.method == "GET":
-        tasks = Task.objects.all().order_by("-id")
+        tasks = Task.objects.filter(user=request.user.pk).order_by("-id")
         serializers = TaskSerializer(tasks, many=True)
         return Response(serializers.data)
     elif request.method == "POST":
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
-            # building_serializer.validated_data['user'] = request.user
+            serializer.validated_data["user"] = User.objects.get(pk=request.user.id)
             serializer.save()
             return JsonResponse(
                 serializer.data, status=status.HTTP_201_CREATED
@@ -61,18 +54,17 @@ def taskList(request):
         )
 
 
-# @permission_classes((IsAuthenticated, ))
-
 
 @api_view(["GET", "POST", "DELETE"])
+@permission_classes((IsAuthenticated, ))
 def taskDetail(request, pk):
-    task = get_object_or_404(Task, id=pk)  # user=request.user,
+    task = get_object_or_404(Task, id=pk,user=request.user.pk)
     if request.method == "GET":
         serializers = TaskSerializer(task, many=False)
         return Response(serializers.data)
-    elif request.method == "POST":
+    elif request.method == "POST":        
         serializer = TaskSerializer(instance=task, data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid():            
             serializer.save()
             return JsonResponse(serializer.data)
         return JsonResponse(
