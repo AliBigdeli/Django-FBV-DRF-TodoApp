@@ -24,8 +24,8 @@
 
 {% block content %}
 <div class="container">
-    
-   
+
+
     <main class="form-signin text-center">
         <section class="justify-content-center mb-4">
             <div style="max-width: 300; width: 100%;">
@@ -54,7 +54,6 @@
                                     src="https://icc-aria.ir/static/img/team_11.jpg" alt="" width="150"
                                     height="150"></a>
                             <h1 class="h3 mb-3 fw-normal">Please Sign In</h1>
-                            {% csrf_token %}
                             <div class="form-floating">
                                 <input type="username" name="username" class="form-control"
                                     placeholder="name@example.com" id="login-username">
@@ -77,25 +76,25 @@
                         </form>
                     </div>
                     <div class="tab-pane fade" id="pills-register" role="tabpanel" aria-labelledby="tab-register">
-                        <form>
+                        <form id="register-form">
                             <a href="https://github.com/alibigdeli"><img
                                     class="mb-4 rounded-circle border-3 border-white shadow p-1 mb"
                                     src="https://icc-aria.ir/static/img/team_11.jpg" alt="" width="150"
                                     height="150"></a>
                             <h1 class="h3 mb-3 fw-normal">Please Register</h1>
-                            {% csrf_token %}
                             <div class="form-floating">
                                 <input type="username" name="username" class="form-control"
-                                    placeholder="name@example.com">
+                                    placeholder="name@example.com" id="register-username">
                                 <label for="floatingInput">Username</label>
                             </div>
                             <div class="form-floating">
-                                <input type="password" name="password1" class="form-control mb-0"
-                                    placeholder="Password">
+                                <input type="password" name="password1" class="form-control mb-0" placeholder="Password"
+                                    id="register-password1">
                                 <label for="floatingPassword">Password</label>
                             </div>
                             <div class="form-floating">
-                                <input type="password" name="password2" class="form-control" placeholder="Password">
+                                <input type="password" name="password2" class="form-control" placeholder="Password"
+                                    id="register-password2">
                                 <label for="floatingPassword">Repeate Password</label>
                             </div>
 
@@ -140,8 +139,8 @@
     let csrftoken = getCookie('csrftoken');
 
 
-    let form = document.getElementById('login-form')
-    form.addEventListener('submit', function (e) {
+    let login_form = document.getElementById('login-form')
+    login_form.addEventListener('submit', function (e) {
         e.preventDefault()
         // console.log('Form submitted')
         let url = 'http://127.0.0.1:8000/accounts/api/login/'
@@ -162,17 +161,44 @@
                     location.reload();
                 }
                 else {
-                    alert(`Error: ${Http.status} \nMsg: ${response["non_field_errors"]}`)                    
+                    alert(`Error: ${Http.status} \nMsg: ${response["non_field_errors"]}`)
                 }
             }
         }
-        data = JSON.stringify({ 'username': login_username, 'password': login_password })
+        data = JSON.stringify({ 'username': login_username, 'password1': login_password })
         Http.send(data);
     });
 
-    
+    let register_form = document.getElementById('register-form')
+    register_form.addEventListener('submit', function (e) {
+        e.preventDefault()
+        // console.log('Form submitted')
+        let url = 'http://127.0.0.1:8000/accounts/api/register/'
+        let register_username = document.getElementById('register-username').value
+        let register_password1 = document.getElementById('register-password1').value
+        let register_password2 = document.getElementById('register-password2').value
+        var Http = new XMLHttpRequest();
+        Http.open("POST", url);
+        Http.setRequestHeader("Accept", "application/json");
+        Http.setRequestHeader("Content-Type", "application/json");
+        Http.setRequestHeader("X-CSRFToken", csrftoken);
 
-
+        Http.onreadystatechange = function () {
+            if (Http.readyState === 4) {
+                // console.log(Http.status);
+                response = JSON.parse(Http.responseText);
+                // console.log(response);
+                if (Http.status === 200) {
+                    location.reload();
+                }
+                else {
+                    alert(`Error: ${Http.status} \nMsg: ${response["non_field_errors"]}`)
+                }
+            }
+        }
+        data = JSON.stringify({ 'username': register_username, 'password1': register_password1, 'password2': register_password2 })
+        Http.send(data);
+    });
 
 </script>
 {% endblock %}
