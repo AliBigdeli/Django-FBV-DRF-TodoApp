@@ -3,7 +3,7 @@
 
 {% block title %} Todo List {% endblock %}
 {% block extra_css %}
-<style>    
+<style>
     a {
         cursor: pointer;
     }
@@ -17,7 +17,7 @@
             <div class="modal-header p-5 pb-4 border-bottom-0">
                 <!-- <h5 class="modal-title">Modal title</h5> -->
                 <h2 class="fw-bold mb-0">Todo App</h2>
-                <a type="button" class="btn-close" href=""></a>
+                <a type="button" class="btn-close" id="logout"></a>
             </div>
 
             <div class="modal-body p-5 pt-0" id="form-wrapper">
@@ -27,7 +27,7 @@
                     <div class="input-group mb-3">
                         <input type="text" class="form-control rounded-4" name="title" placeholder="Enter task title"
                             aria-label="Recipient's username" aria-describedby="button-addon2" id="title">
-                        <button class="btn btn-primary" type="submit" id="submit" >Add</button>
+                        <button class="btn btn-primary" type="submit" id="submit">Add</button>
                     </div>
 
 
@@ -139,9 +139,9 @@
 
 
                     editBtn.addEventListener('click', (function (item) {
-                        return function () {                            
-                            
-                            editItem(item)                            
+                        return function () {
+
+                            editItem(item)
                         }
                     })(list[i]))
 
@@ -156,7 +156,7 @@
 
 
                     done.addEventListener('click', (function (item) {
-                        return function () {                            
+                        return function () {
                             strikeUnstrike(item)
                         }
                     })(list[i]))
@@ -177,7 +177,7 @@
         if (activeItem != null) {
             var url = `http://127.0.0.1:8000/todo/api/task-update/${activeItem.id}/`
             activeItem = null
-            document.getElementById('submit').textContent = "Add"  
+            document.getElementById('submit').textContent = "Add"
         }
 
 
@@ -202,10 +202,10 @@
 
     function editItem(item) {
         // console.log('Item clicked:', item);
-        document.getElementById('submit').textContent = "change"  
-        activeItem = item;              
+        document.getElementById('submit').textContent = "change"
+        activeItem = item;
         document.getElementById('title').value = activeItem.title;
-        
+
     }
 
 
@@ -224,7 +224,7 @@
 
     function strikeUnstrike(item) {
         // console.log('Strike clicked')
-        
+
         item.completed = !item.completed
         fetch(`http://127.0.0.1:8000/todo/api/task-update/${item.id}/`, {
             method: 'POST',
@@ -238,6 +238,20 @@
         })
     }
 
+    let logout = document.getElementById('logout')
+    logout.addEventListener('click', function (e) {
+        const Http = new XMLHttpRequest();
+        const url = 'http://127.0.0.1:8000/accounts/api/logout/'
+        Http.open("GET", url);
+        Http.send();
+
+        Http.onreadystatechange = (e) => {
+            console.log(Http.responseText)
+            if (Http.status == 200) {
+                location.reload();
+            }
+        }
+    })
 
 </script>
 
