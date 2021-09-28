@@ -4,6 +4,6 @@ from . import views
 app_name = "todo"
 
 urlpatterns = [
-    path("", views.indexView, name="list2"),
+    path("", views.indexView, name="index"),    
     path("api/", include("todo.api.urls")),
 ]

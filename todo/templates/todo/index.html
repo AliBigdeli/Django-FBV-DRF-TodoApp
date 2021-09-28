@@ -2,31 +2,45 @@
 {% load static %}
 
 {% block title %} Todo List {% endblock %}
-{% block extra_css %}{% endblock %}
+{% block extra_css %}
+<style>    
+    a {
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="modal modal-signin position-static d-block  py-5" tabindex="-1" role="dialog" id="modalSignin">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content rounded-5 shadow" id="task-container">
+            <div class="modal-header p-5 pb-4 border-bottom-0">
+                <!-- <h5 class="modal-title">Modal title</h5> -->
+                <h2 class="fw-bold mb-0">Todo App</h2>
+                <a type="button" class="btn-close" href=""></a>
+            </div>
 
-    <div id="task-container">
-        <div id="form-wrapper">
-            <form id="form">
-                <div class="flex-wrapper">
-                    <div style="flex: 6">
-                        <input id="title" class="form-control" type="text" name="title" placeholder="Add task">
+            <div class="modal-body p-5 pt-0" id="form-wrapper">
+
+                <form class="pt-3" id="form">
+                    {% csrf_token %}
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control rounded-4" name="title" placeholder="Enter task title"
+                            aria-label="Recipient's username" aria-describedby="button-addon2" id="title">
+                        <button class="btn btn-primary" type="submit" id="submit" >Add</button>
                     </div>
-                    <div style="flex: 1">
-                        <input id="submit" class="btn" type="submit">
-                    </div>
+
+
+
+                </form>
+                <hr class="my-4">
+                <div id="list-wrapper">
                 </div>
-            </form>
-        </div>
-
-        <div id="list-wrapper">
-
+            </div>
         </div>
     </div>
-
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -74,11 +88,11 @@
 
     function buildList() {
         var wrapper = document.getElementById('list-wrapper')
-        var url = 'http://127.0.0.1:8000/api/task-list/'
+        var url = 'http://127.0.0.1:8000/todo/api/task-list/'
         fetch(url)
             .then((resp) => resp.json())
             .then(function (data) {
-                console.log('Data:', data)
+                // console.log('Data:', data)
                 var list = data
                 for (var i in list) {
                     try {
@@ -91,18 +105,20 @@
                         title = `<strike class="title">${list[i].title}</strike>`
                     }
                     var item = `
-                        <div id="data-row-${i}" class="task-wrapper flex-wrapper">
-                            <div style="flex:7">
-                                ${title}
-                            </div>
-                            <div style="flex:1">
-                                <button class="btn btn-sm btn-outline-info edit">Edit </button>
-                            </div>
-                            <div style="flex:1">
-                                <button class="btn btn-sm btn-outline-dark delete">-</button>
-                            </div>
-                        </div>`
-
+                    <div class="input-group py-1" id="data-row-${i}">
+                        <span type="text" class="form-control" aria-label="Text input with segmented dropdown button">                        
+                        <span>${title}</span>                        
+                        </span>
+                        <a type="button" class="btn btn-danger delete"><i class="bi bi-trash"></i></a>
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item done" >Done</a></li>
+                        <li><a class="dropdown-item edit">Edit</a></li>
+                        </ul>
+                    </div>`
                     wrapper.innerHTML += item
                 }
 
@@ -119,11 +135,13 @@
                     var editBtn = document.getElementsByClassName('edit')[i]
                     var deleteBtn = document.getElementsByClassName('delete')[i]
                     var title = document.getElementsByClassName('title')[i]
+                    var done = document.getElementsByClassName('done')[i]
 
 
                     editBtn.addEventListener('click', (function (item) {
-                        return function () {
-                            editItem(item)
+                        return function () {                            
+                            
+                            editItem(item)                            
                         }
                     })(list[i]))
 
@@ -137,8 +155,8 @@
 
 
 
-                    title.addEventListener('click', (function (item) {
-                        return function () {
+                    done.addEventListener('click', (function (item) {
+                        return function () {                            
                             strikeUnstrike(item)
                         }
                     })(list[i]))
@@ -154,11 +172,12 @@
     var form = document.getElementById('form-wrapper')
     form.addEventListener('submit', function (e) {
         e.preventDefault()
-        console.log('Form submitted')
-        var url = 'http://127.0.0.1:8000/api/task-create/'
+        // console.log('Form submitted')
+        var url = 'http://127.0.0.1:8000/todo/api/task-create/'
         if (activeItem != null) {
-            var url = `http://127.0.0.1:8000/api/task-update/${activeItem.id}/`
+            var url = `http://127.0.0.1:8000/todo/api/task-update/${activeItem.id}/`
             activeItem = null
+            document.getElementById('submit').textContent = "Add"  
         }
 
 
@@ -182,15 +201,17 @@
 
 
     function editItem(item) {
-        console.log('Item clicked:', item)
-        activeItem = item
-        document.getElementById('title').value = activeItem.title
+        // console.log('Item clicked:', item);
+        document.getElementById('submit').textContent = "change"  
+        activeItem = item;              
+        document.getElementById('title').value = activeItem.title;
+        
     }
 
 
     function deleteItem(item) {
-        console.log('Delete clicked')
-        fetch(`http://127.0.0.1:8000/api/task-delete/${item.id}/`, {
+        // console.log('Delete clicked')
+        fetch(`http://127.0.0.1:8000/todo/api/task-delete/${item.id}/`, {
             method: 'DELETE',
             headers: {
                 'Content-type': 'application/json',
@@ -202,10 +223,10 @@
     }
 
     function strikeUnstrike(item) {
-        console.log('Strike clicked')
-
+        // console.log('Strike clicked')
+        
         item.completed = !item.completed
-        fetch(`http://127.0.0.1:8000/api/task-update/${item.id}/`, {
+        fetch(`http://127.0.0.1:8000/todo/api/task-update/${item.id}/`, {
             method: 'POST',
             headers: {
                 'Content-type': 'application/json',

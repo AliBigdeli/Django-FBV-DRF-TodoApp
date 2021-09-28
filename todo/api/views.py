@@ -22,11 +22,13 @@ def apiOverview(request):
     """Overview of the whole api urls
     """
     api_urls = {
+        "Login": "/accounts/api/login",
+        "Register": "/accounts/api/register",
         "List": "/task-list/",
-        "Detail": "/task-detail/<str:pk>/",
-        "Create": "/task-create/",
-        "Update": "/task-update/<str:pk>/",
-        "Delete": "/task-delete/<str:pk>/",
+        "Detail": "/api/task-detail/<str:pk>/",
+        "Create": "/api/task-create/",
+        "Update": "/api/task-update/<str:pk>/",
+        "Delete": "/api/task-delete/<str:pk>/",
     }
 
     return Response(api_urls)
