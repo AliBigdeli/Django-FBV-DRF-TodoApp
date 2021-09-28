@@ -38,6 +38,6 @@ def registerView(request, format=None):
         user = User.objects.create_user(username=username, password=password)
         authenticate(request, username=username, password=password)
         login(request, user)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
 
     return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
